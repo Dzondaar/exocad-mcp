@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DentalContainer>
+  <Patient><FirstName>Jane</FirstName><LastName>Doe</LastName></Patient>
+  <ProjectName>CASE-001</ProjectName>
+  <Teeth>
+    <Tooth><Number>11</Number><ReconstructionType>coping</ReconstructionType><Material>Zirconia</Material></Tooth>
+    <Tooth><Number>12</Number><ReconstructionType>crown</ReconstructionType><Material>Zirconia</Material></Tooth>
+  </Teeth>
+</DentalContainer>

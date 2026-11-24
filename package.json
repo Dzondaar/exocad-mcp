@@ -1,0 +1,26 @@
+{
+  "name": "exocad-mcp",
+  "version": "0.1.0",
+  "description": "Read-only MCP server for exocad project folders (.dentalProject / .constructionInfo XML)",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "exocad-mcp": "dist/index.js" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "engines": { "node": ">=20.3" },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.3.1",
+    "fast-xml-parser": "^5.0.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.3.1",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}
