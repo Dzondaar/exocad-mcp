@@ -5,24 +5,34 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import * as z from "zod/v4";
 import { findCases, readCase, realRoot, resolveInside } from "./cases.js";
+import { registerGuiTools } from "./gui.js";
 
 const CHARACTER_LIMIT = 25_000;
+// File tools need EXOCAD_PROJECTS_ROOT; GUI tools need Windows. Each group is registered only when usable.
 const rootEnv = process.env.EXOCAD_PROJECTS_ROOT;
-if (!rootEnv) {
-  console.error("EXOCAD_PROJECTS_ROOT is required: absolute path to the folder that contains your exocad cases.");
+const ROOT = rootEnv
+  ? await realRoot(path.resolve(rootEnv)).catch(() => {
+      console.error(`EXOCAD_PROJECTS_ROOT does not exist: ${rootEnv}`);
+      process.exit(1);
+    })
+  : undefined;
+const GUI = process.platform === "win32";
+if (!ROOT && !GUI) {
+  console.error("Nothing to serve: set EXOCAD_PROJECTS_ROOT (case folder tools) or run on Windows (GUI tools).");
   process.exit(1);
 }
-const ROOT = await realRoot(path.resolve(rootEnv)).catch(() => {
-  console.error(`EXOCAD_PROJECTS_ROOT does not exist: ${rootEnv}`);
-  process.exit(1);
-});
 
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 
 function createServer(): McpServer {
-  const server = new McpServer({ name: "exocad-mcp", version: "0.1.0" });
+  const server = new McpServer({ name: "exocad-mcp", version: "0.2.0" });
+  if (GUI) registerGuiTools(server);
+  if (ROOT) registerFileTools(server, ROOT);
+  return server;
+}
 
+function registerFileTools(server: McpServer, ROOT: string): void {
   server.registerTool(
     "exocad_list_cases",
     {
@@ -76,9 +86,7 @@ function createServer(): McpServer {
       return text(out.length > CHARACTER_LIMIT ? `${out.slice(0, CHARACTER_LIMIT)}\n[truncated at ${CHARACTER_LIMIT} chars]` : out);
     }
   );
-
-  return server;
 }
 
 serveStdio(createServer);
-console.error(`exocad-mcp running on stdio, root: ${ROOT}`);
+console.error(`exocad-mcp running on stdio (cases root: ${ROOT ?? "none"}, GUI tools: ${GUI})`);
